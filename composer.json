@@ -1,0 +1,17 @@
+{
+    "name": "juniper/netconf-php",
+    "type": "library",
+    "description": "PHP library for NETCONF",
+    "keywords": ["netconf", "juniper"],
+    "license": "MIT",
+    "authors": [
+    ],
+    "require": {
+        "ext-expect": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "": "netconf"
+        }
+    }
+}
