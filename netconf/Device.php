@@ -1,6 +1,6 @@
 <?php
 
-error_reporting(0);
+//error_reporting(0);
 //ini_set('expect.loguser', 0);
 // if set it off, then user will not be able to see what server is sending,like capabilities and other information.
 
