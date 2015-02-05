@@ -133,7 +133,7 @@ class Device {
     *operations.
     */
     public function connect() {
-    $this->stream = expect_popen("ssh -o ConnectTimeout=$this->connectTimeout $this->userName@$this->hostName -p $this->port -s netconf");        
+    $this->stream = fopen("expect://ssh -o ConnectTimeout=$this->connectTimeout $this->userName@$this->hostName -p $this->port -s netconf", "rw");        
 	ini_set('expect.timeout',  $this->replyTimeout);
 	$flag = true;        
 	while ($flag) {
