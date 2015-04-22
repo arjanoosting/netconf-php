@@ -372,19 +372,19 @@ class Device {
     *Check if the last RPC reply returned from Netconf server has any error.
     *@return true if any errors are found in last RPC reply.
     */
-     public function has_error() {
-         if(!$this->is_connected)
-             throw new NetconfException("No RPC executed yet, you need to establish a connection first");
-         if ($this->last_rpc_reply == "" || !(strstr($this->last_rpc_reply,"<rpc-error>")))
-             return false;
-         $reply = $this->convert_to_xml($this->last_rpc_reply);
-         $tagList[0] = "rpc-error";
-         $tagList[1] = "error-severity";
-         $errorSeverity = $reply->findValue($tagList);
-         if ($errorSeverity != null && $errorSeverity == "error")
-             return true;
-         return false;
-     }
+    public function has_error() {
+        if(!$this->is_connected)
+            throw new NetconfException("No RPC executed yet, you need to establish a connection first");
+        if ($this->last_rpc_reply == "" || !(strstr($this->last_rpc_reply,"<rpc-error>")))
+            return false;
+        $reply = $this->convert_to_xml($this->last_rpc_reply);
+        $tagList[0] = "rpc-error";
+        $tagList[1] = "error-severity";
+        $errorSeverity = $reply->find_value($tagList);
+        if ($errorSeverity != null && $errorSeverity == "error")
+            return true;
+        return false;
+    }
 
     /**
     *Check if the last RPC reply returned from Netconf server has any warning.
@@ -398,7 +398,7 @@ class Device {
         $reply = $this->convert_to_xml($this->last_rpc_reply);
         $tagList[0] = "rpc-error";
         $tagList[1] = "error-severity";
-        $errorSeverity = $reply->findValue($tagList);
+        $errorSeverity = $reply->find_value($tagList);
         if ($errorSeverity != null && $errorSeverity == "warning")
             return true;
         return false;
@@ -692,7 +692,7 @@ class Device {
             return null;
         }
         $tags[0] = "output";
-        $output = $xmlreply->findValue($tags);
+        $output = $xmlreply->find_value($tags);
         if ($output != null) 
             return $output;
         return $rpcReply;
