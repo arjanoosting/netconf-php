@@ -34,21 +34,21 @@ class Device {
     * </ol>
     */
     public function __construct(){
-       if(func_num_args() ==1 && is_array(func_get_arg(0)) )
-	{
-	$this->Device_array(func_get_arg(0));
-	}
-	else
-	{
-	$this->Device_string(func_get_args());
-	}
+        if(func_num_args() ==1 && is_array(func_get_arg(0)) )
+        {
+            $this->Device_array(func_get_arg(0));
+        }
+        else
+        {
+            $this->Device_string(func_get_args());
+        }
     }
     
     /** This function is called when user passes list of string as arguments
     * while creating object of Device class
     */
     public function Device_string($arr){
-	if(count ($arr) == 4) {
+        if(count ($arr) == 4) {
            if(is_array($arr[3])) {
                 $this->hello_rpc = $this->create_hello_rpc($arr[3]);
                 $this->port = 830;
@@ -69,15 +69,15 @@ class Device {
                 $this->hello_rpc = $this->create_hello_rpc($arr[4]);
             }
         }
-	else {
+        else {
             $this->port = 830;
             $this->hello_rpc = $this->default_hello_rpc();
         }
         $this->hostName = $arr[0];
         $this->userName = $arr[1];
         $this->password = $arr[2];
-	$this->connectTimeout = 10;
-	$this->replyTimeout =600;
+        $this->connectTimeout = 10;
+        $this->replyTimeout = 600;
         $this->is_connected = false;
     }
  
@@ -86,46 +86,46 @@ class Device {
     */
     public function Device_array(array $params)
     {
-     if( $params["hostname"]!=null && !(empty($params["hostname"])) && (is_string($params["hostname"])))  		{
-	$this->hostName = $params["hostname"];		
- 	}
-	else{
-	die ("host name should be string and should not be empty or null\n");
-	}
+        if( $params["hostname"]!=null && !(empty($params["hostname"])) && (is_string($params["hostname"]))) {
+            $this->hostName = $params["hostname"];
+        }
+        else{
+            die ("host name should be string and should not be empty or null\n");
+        }
 
-	if (empty($params["username"]) || is_null( $params["username"] ) ){
-	die ("user name should not be empty or null\n");
-	}
-	else{
-	$this->userName = $params["username"];
-	}
+        if (empty($params["username"]) || is_null( $params["username"] ) ){
+            die ("user name should not be empty or null\n");
+        }
+        else{
+            $this->userName = $params["username"];
+        }
 
-	if (empty($params["password"]) || is_null( $params["password"] ) ){
-	die("user name should not be empty or null\n");
-	}
-	else{
-	$this->password = $params["password"];
-	}
+        if (empty($params["password"]) || is_null( $params["password"] ) ){
+            die("user name should not be empty or null\n");
+        }
+        else{
+            $this->password = $params["password"];
+        }
 
-	if($params["port"]!=null && !(empty($params["port"])) && is_numeric($params["port"]) )
-	{
-	$this->port = $params["port"];
-	}
-	else{
-	$this->port = 830;
-	}
+        if($params["port"]!=null && !(empty($params["port"])) && is_numeric($params["port"]) )
+        {
+            $this->port = $params["port"];
+        }
+        else{
+            $this->port = 830;
+        }
 
-	if ( $params["capability"]!=null && ! (empty($params["capability"]) ) ){
-	$this->hello_rpc= $this->create_hello_rpc($params["capability"]);
-	}
-	else {
-	$this->hello_rpc = $this->default_hello_rpc();
-	}
+        if ( $params["capability"]!=null && ! (empty($params["capability"]) ) ){
+            $this->hello_rpc= $this->create_hello_rpc($params["capability"]);
+        }
+        else {
+            $this->hello_rpc = $this->default_hello_rpc();
+        }
         $this->connectTimeout=10;
-	$this->replyTimeout= 600;
-	$this->is_connected =false;
-     }
- 	
+        $this->replyTimeout= 600;
+        $this->is_connected =false;
+    }
+
     /**
     *Prepares a new <code?Device</code> object, either with default 
     *client capabilities and default port 830, or with user specified
@@ -134,9 +134,9 @@ class Device {
     */
     public function connect() {
     $this->stream = expect_popen("ssh -o ConnectTimeout=$this->connectTimeout $this->userName@$this->hostName -p $this->port -s netconf");        
-	ini_set('expect.timeout',  $this->replyTimeout);
-	$flag = true;        
-	while ($flag) {
+    ini_set('expect.timeout',  $this->replyTimeout);
+    $flag = true;
+    while ($flag) {
         switch (expect_expectl($this->stream,array (
                 array("Password:","PASSWORD"),
                 array("password:","PASSWORD"),
@@ -146,7 +146,7 @@ class Device {
                 array(" ","SHELL"),
                   ))) {
                 case "PASSWORD":
-		    fwrite($this->stream,$this->password."\n");
+                    fwrite($this->stream,$this->password."\n");
                     switch (expect_expectl($this->stream,array (
                         array("Password:","PASSWORD"),
                         array("password:","PASSWORD"),
@@ -184,8 +184,8 @@ class Device {
                     break;
                 case "SHELL":
                     break;
-		case EXP_EOF :
-		    throw new NetconfException("Timeout Connecting to device");
+                case EXP_EOF :
+                    throw new NetconfException("Timeout Connecting to device");
                 default:
                     throw new NetconfException("Device not found/ unknown error occurred while connecting to Device");
                 }
@@ -207,24 +207,24 @@ class Device {
     *Sends the RPC as a string and returns the response as a string.
     */
     private function get_rpc_reply($rpc) {
-	$rpc_reply = "";
-	fwrite($this->stream,$rpc."\n");
-	while (1) {
+        $rpc_reply = "";
+        fwrite($this->stream,$rpc."\n");
+        while (1) {
             $line = fgets($this->stream);
             if (strncmp($line,"<rpc>",5)==0)
                 if (strpos($line,"]]>]]>"))
-                    continue;    
+                    continue;
                 else {
-                 while (1)
-		{
-			$line = fgets($this->stream);
-			if (strpos($line,"]]>]]>"))
-			 {
-					
+                    while (1)
+                    {
+                        $line = fgets($this->stream);
+                        if (strpos($line,"]]>]]>"))
+                        {
+
                             $line = fgets($this->stream); 
                             break;
-                          }
-                }
+                        }
+                    }
                 }
             if ((strncmp($line,"]]>]]>",6))==0)
                 break;
@@ -256,8 +256,8 @@ class Device {
             $rpc_reply_string = $this->get_rpc_reply($rpcString);
         }
         $this->last_rpc_reply = $rpc_reply_string;
-	$rpc_reply = $this->convert_to_xml($rpc_reply_string);
-	return $rpc_reply;
+        $rpc_reply = $this->convert_to_xml($rpc_reply_string);
+        return $rpc_reply;
     }
 
     /**
@@ -518,28 +518,28 @@ class Device {
     *        You can choose "merge" or "replace" as the loadType.
     */
      public function load_text_configuration($configuration,$loadType) {
-        if ($loadType == null || (!($loadType == "merge") && !($loadType == "replace")))
-            throw new NetconfException ("'loadType' argument must be merge|replace\n");
-	$rpc = "<rpc>";
-        $rpc.="<edit-config>";
-        $rpc.="<target>";
-        $rpc.="<candidate/>";
-        $rpc.="</target>";
-        $rpc.="<default-operation>";
-        $rpc.=$loadType;
-        $rpc.="</default-operation>";
-        $rpc.="<config-text>";
-        $rpc.="<configuration-text>";
-        $rpc.=$configuration;
-        $rpc.="</configuration-text>";
-        $rpc.="</config-text>";
-        $rpc.="</edit-config>";
-        $rpc.="</rpc>";
-        $rpc.="]]>]]>\n";
-        $rpcReply = $this->get_rpc_reply($rpc);
-	$this->last_rpc_reply = $rpcReply;
-        if ($this->has_error() || !$this->is_ok())
-            throw new LoadException("Load operation returned error");
+         if ($loadType == null || (!($loadType == "merge") && !($loadType == "replace")))
+             throw new NetconfException ("'loadType' argument must be merge|replace\n");
+         $rpc = "<rpc>";
+         $rpc.="<edit-config>";
+         $rpc.="<target>";
+         $rpc.="<candidate/>";
+         $rpc.="</target>";
+         $rpc.="<default-operation>";
+         $rpc.=$loadType;
+         $rpc.="</default-operation>";
+         $rpc.="<config-text>";
+         $rpc.="<configuration-text>";
+         $rpc.=$configuration;
+         $rpc.="</configuration-text>";
+         $rpc.="</config-text>";
+         $rpc.="</edit-config>";
+         $rpc.="</rpc>";
+         $rpc.="]]>]]>\n";
+         $rpcReply = $this->get_rpc_reply($rpc);
+         $this->last_rpc_reply = $rpcReply;
+         if ($this->has_error() || !$this->is_ok())
+             throw new LoadException("Load operation returned error");
     }
 
     /**
@@ -552,18 +552,18 @@ class Device {
     *To load multiple set statements, separate them by '\n' character.
     */
      public function load_set_configuration($configuration) {
-	$rpc = "<rpc>";
-        $rpc.="<load-configuration action=\"set\">";
-        $rpc.="<configuration-set>";
-        $rpc.=$configuration;
-        $rpc.="</configuration-set>";
-        $rpc.="</load-configuration>";
-        $rpc.="</rpc>";
-	$rpc.="]]>]]>\n";
-        $rpcReply = $this->get_rpc_reply($rpc);
-        $this->last_rpc_reply = $rpcReply;
-	if ($this->has_error() || !$this->is_ok())
-            throw new LoadException("Load operation returned error");
+         $rpc = "<rpc>";
+         $rpc.="<load-configuration action=\"set\">";
+         $rpc.="<configuration-set>";
+         $rpc.=$configuration;
+         $rpc.="</configuration-set>";
+         $rpc.="</load-configuration>";
+         $rpc.="</rpc>";
+         $rpc.="]]>]]>\n";
+         $rpcReply = $this->get_rpc_reply($rpc);
+         $this->last_rpc_reply = $rpcReply;
+         if ($this->has_error() || !$this->is_ok())
+             throw new LoadException("Load operation returned error");
     }
 
     /**
@@ -644,14 +644,14 @@ class Device {
         $rpc = "<rpc>";
         $rpc.="<open-configuration>";
         $rpc.="<";
-	$rpc.=$mode;
-	$rpc.="/>";
+        $rpc.=$mode;
+        $rpc.="/>";
         $rpc.="</open-configuration>";
         $rpc.="</rpc>";
         $rpc.="]]>]]>\n";
         $rpcReply = $this->get_rpc_reply($rpc);
         $this->last_rpc_reply = $rpcReply;
-	}
+     }
 
     /**
     *This method should be called to close a private session, in case its started.
@@ -708,19 +708,19 @@ class Device {
     *       You can choose "merge" or "replace" as the loadType.
     */
      public function load_xml_file($configFile,$loadType) {
-	$configuration = "";
-        $file = fopen($configFile,"r");
-        if (!$file)
-            throw new NetconfException ("File not found error");
-        while(!feof($file))
-        {
-            $line=fgets($file);
-            $configuration.=$line;
-        }
-        fclose($file);
-        if ($loadType == null ||(!($loadType == "merge") && !($loadType == "replace")))
-            throw new NetconfException("'loadType' must be merge|replace");
-        $this->load_xml_configuration($configuration,$loadType);
+         $configuration = "";
+         $file = fopen($configFile,"r");
+         if (!$file)
+             throw new NetconfException ("File not found error");
+         while(!feof($file))
+         {
+             $line=fgets($file);
+             $configuration.=$line;
+         }
+         fclose($file);
+         if ($loadType == null ||(!($loadType == "merge") && !($loadType == "replace")))
+             throw new NetconfException("'loadType' must be merge|replace");
+         $this->load_xml_configuration($configuration,$loadType);
     }
 
     /**
@@ -740,7 +740,7 @@ class Device {
         while ($line = fgets($file))
             $configuration.=$line;
         fclose($file);
-	if ($loadType == null || (!($loadType == "merge") && !($loadType == "replace")))
+        if ($loadType == null || (!($loadType == "merge") && !($loadType == "replace")))
             throw new NetconfException("'loadType' argument must be merge|replace\n");
         $this->load_text_configuration($configuration,$loadType);
     }
@@ -863,13 +863,13 @@ class Device {
     *Closes the Netconf session
     */
      public function close() {
-	$rpc = "<rpc>";
-        $rpc.="<close-session/>";
-        $rpc.="</rpc>";
-        $rpc.="]]>]]>\n";
-        $rpcReply = $this->get_rpc_reply($rpc);
-        $this->last_rpc_reply = $rpcReply;
-        fclose($this->stream);  
+         $rpc = "<rpc>";
+         $rpc.="<close-session/>";
+         $rpc.="</rpc>";
+         $rpc.="]]>]]>\n";
+         $rpcReply = $this->get_rpc_reply($rpc);
+         $this->last_rpc_reply = $rpcReply;
+         fclose($this->stream);
      }
     /**
      * Create hello_rpc packet with user defined capabilities
@@ -918,9 +918,9 @@ class Device {
      * It will output alarm information which can be obtained from execute_rpc("get-alarm-information")
      */        
     public function __call($function,$args){
-	$change=preg_replace('/_/','-',$function);
-	$reply=$this->execute_rpc($change);
-	return $reply;
-    } 
+        $change=preg_replace('/_/','-',$function);
+        $reply=$this->execute_rpc($change);
+        return $reply;
+    }
 }
 ?>
