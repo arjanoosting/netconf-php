@@ -474,27 +474,19 @@ class Device {
              system&gt;&lt;/configuration&gt;
     *       will load 'ftp' under the 'systems services' hierarchy.
     *@param loadType
-    *       You can choose "merge" or "replace" as the loadType.
+    *       You can choose "merge", "replace", "none" or "update" as the loadType.
     */
     public function load_xml_configuration($configuration,$loadType) {
-        if ($loadType == null || (!($loadType == "merge") && !($loadType == "replace")))
-            throw new NetconfException("'loadType' argument must be merge|replace\n");
+        if ($loadType == null || (!($loadType == "merge" || $loadType == "replace" || $loadType == "none" || $loadType == "update")))
+            throw new NetconfException("'loadType' argument must be merge|replace|none\n");
         if ($this->starts_with($configuration,"<?xml version"))
             $configuration = preg_replace('/\<\?xml[^=]*="[^"]*"\?\>/', "", $configuration);
         else if (!($this->starts_with($configuration,"<configuration>")))
             $configuration = "<configuration>".$configuration."</configuration>";
         $rpc = "<rpc>";
-        $rpc.="<edit-config>";
-        $rpc.="<target>";
-        $rpc.="<candidate/>";
-        $rpc.="</target>";
-        $rpc.="<default-operation>";
-        $rpc.=$loadType;
-        $rpc.="</default-operation>";
-        $rpc.="<config>";
+        $rpc.="<load-configuration action=\"$loadType\" format=\"xml\">";
         $rpc.=$configuration;
-        $rpc.="</config>";
-        $rpc.="</edit-config>";
+        $rpc.="</load-configuration>";
         $rpc.="</rpc>";
         $rpc.="]]>]]>\n";
         $rpcReply = $this->get_rpc_reply($rpc);
