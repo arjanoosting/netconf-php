@@ -790,6 +790,18 @@ class Device {
         return $rpcReply;
     }
 
+    public function get_configuration_changes() {
+        $rpc = "<rpc>";
+        $rpc.="<get-configuration compare=\"rollback\">";
+        $rpc.="</get-configuration>";
+        $rpc.="</rpc>";
+        $rpc.="]]>]]>\n";
+        $rpcReply = $this->execute_rpc($rpc);
+        $output = $rpcReply->find_value(array('configuration-information', 'configuration-output'));
+
+        return $output;
+    }
+
     /**
     *Retrieve the candidate configuration, or part of the configuration.
     *If no argument is specified, then the
