@@ -569,9 +569,26 @@ class Device {
     /**
     *Commit the candidate configuration.
     */
-     public function commit() {
+     public function commit($options = null) {
+        $synchronize = false;
+        if (is_array($options)) {
+            $synchronize = isset($options['synchronize']) ? true == ($options['synchronize']) : false;
+            if (isset($options['log'])) {
+                $log = $options['log'];
+            } elseif (isset($options['comment'])) {
+                $log = $options['comment'];
+            }
+        }
+
         $rpc = "<rpc>";
-        $rpc.="<commit/>";
+        $rpc.="<commit>";
+        if ($synchronize) {
+            $rpc.="<synchronize/>";
+        }
+        if (isset($log)) {
+            $rpc.="<log>$log</log>";
+        }
+        $rpc.="</commit>";
         $rpc.="</rpc>";
         $rpc.="]]>]]>\n"; 
         $rpcReply = $this->get_rpc_reply($rpc);
