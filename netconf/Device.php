@@ -790,16 +790,39 @@ class Device {
         return $rpcReply;
     }
 
-    public function get_configuration_changes() {
+    public function get_configuration($database = null, $filter = null, $format = 'xml', $compareWith = null) {
+        $attributes = '';
+
+        if (isset($database)) {
+            $attributes .= " database=\"{$database}\"";
+        }
+        if (isset($compareWith)) {
+            $attributes .= " compare=\"rollback\" rollback=\"{$compareWith}\"";
+            $format = 'text';
+        }
+        if (isset($format)) {
+            $attributes .= " format=\"$format\"";
+        }
+        $filter = isset($filter) ? $filter : '';
+
         $rpc = "<rpc>";
-        $rpc.="<get-configuration compare=\"rollback\">";
+        $rpc.="<get-configuration $attributes>";
+        $rpc.= $filter;
         $rpc.="</get-configuration>";
         $rpc.="</rpc>";
         $rpc.="]]>]]>\n";
         $rpcReply = $this->execute_rpc($rpc);
-        $output = $rpcReply->find_value(array('configuration-information', 'configuration-output'));
 
-        return $output;
+        if (isset($compareWith)) {
+            $output = $rpcReply->find_value(array('configuration-information', 'configuration-output'));
+            return $output;
+        } elseif ('text' == $format) {
+            $output = $rpcReply->find_value(array('configuration-text'));
+            return $output;
+        } else {
+            return $rpcReply;
+        }
+
     }
 
     /**
